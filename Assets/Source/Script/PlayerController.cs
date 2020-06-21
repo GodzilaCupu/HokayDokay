@@ -6,12 +6,28 @@ public class PlayerController : MonoBehaviour
 {
     bool wasJustClicked = true;
     bool canMove;
-    Vector2 playerSize;
+
+    Rigidbody2D rbPlayer;
+
+    public Transform boundrayHolder;
+
+    Boundary playerBondray;
+
+    Collider2D Player;
+
 
     // Use this for initialization
     void Start()
     {
-        playerSize = gameObject.GetComponent<SpriteRenderer>().bounds.extents;
+        Player = GetComponent<Collider2D>();
+
+        rbPlayer = GetComponent<Rigidbody2D>();
+
+        playerBondray = new Boundary(boundrayHolder.GetChild(0).position.y,
+                                     boundrayHolder.GetChild(1).position.y,
+                                     boundrayHolder.GetChild(2).position.x,
+                                     boundrayHolder.GetChild(3).position.x);
+
     }
 
     // Update is called once per frame
@@ -25,10 +41,7 @@ public class PlayerController : MonoBehaviour
             {
                 wasJustClicked = false;
 
-                if ((mousePos.x >= transform.position.x && mousePos.x < transform.position.x + playerSize.x ||
-                mousePos.x <= transform.position.x && mousePos.x > transform.position.x - playerSize.x) &&
-                (mousePos.y >= transform.position.y && mousePos.y < transform.position.y + playerSize.y ||
-                mousePos.y <= transform.position.y && mousePos.y > transform.position.y - playerSize.y))
+                if (Player.OverlapPoint(mousePos))
                 {
                     canMove = true;
                 }
@@ -40,7 +53,12 @@ public class PlayerController : MonoBehaviour
 
             if (canMove)
             {
-                transform.position = mousePos;
+
+                Vector2 clampMovePos = new Vector2(Mathf.Clamp(mousePos.x, playerBondray.Left, playerBondray.Right),
+                                                   Mathf.Clamp(mousePos.y, playerBondray.Down, playerBondray.Up));
+
+
+                rbPlayer.MovePosition(clampMovePos);
             }
         }
         else
