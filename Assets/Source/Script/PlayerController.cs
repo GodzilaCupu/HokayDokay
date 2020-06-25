@@ -7,26 +7,26 @@ public class PlayerController : MonoBehaviour
     bool wasJustClicked = true;
     bool canMove;
 
-    Rigidbody2D rbPlayer;
+    Rigidbody2D rb;
+    Vector2 startingPosition;
 
-    public Transform boundrayHolder;
+    public Transform BoundaryHolder;
 
-    Boundary playerBondray;
+    Boundary playerBoundary;
 
-    Collider2D Player;
-
+    Collider2D playerCollider;
 
     // Use this for initialization
     void Start()
     {
-        Player = GetComponent<Collider2D>();
+        rb = GetComponent<Rigidbody2D>();
+        startingPosition = rb.position;
+        playerCollider = GetComponent<Collider2D>();
 
-        rbPlayer = GetComponent<Rigidbody2D>();
-
-        playerBondray = new Boundary(boundrayHolder.GetChild(0).position.y,
-                                     boundrayHolder.GetChild(1).position.y,
-                                     boundrayHolder.GetChild(2).position.x,
-                                     boundrayHolder.GetChild(3).position.x);
+        playerBoundary = new Boundary(BoundaryHolder.GetChild(0).position.y,
+                                      BoundaryHolder.GetChild(1).position.y,
+                                      BoundaryHolder.GetChild(2).position.x,
+                                      BoundaryHolder.GetChild(3).position.x);
 
     }
 
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
             {
                 wasJustClicked = false;
 
-                if (Player.OverlapPoint(mousePos))
+                if (playerCollider.OverlapPoint(mousePos))
                 {
                     canMove = true;
                 }
@@ -53,17 +53,21 @@ public class PlayerController : MonoBehaviour
 
             if (canMove)
             {
-
-                Vector2 clampMovePos = new Vector2(Mathf.Clamp(mousePos.x, playerBondray.Left, playerBondray.Right),
-                                                   Mathf.Clamp(mousePos.y, playerBondray.Down, playerBondray.Up));
-
-
-                rbPlayer.MovePosition(clampMovePos);
+                Vector2 clampedMousePos = new Vector2(Mathf.Clamp(mousePos.x, playerBoundary.Left,
+                                                                  playerBoundary.Right),
+                                                      Mathf.Clamp(mousePos.y, playerBoundary.Down,
+                                                                  playerBoundary.Up));
+                rb.MovePosition(clampedMousePos);
             }
         }
         else
         {
             wasJustClicked = true;
         }
+    }
+
+    public void ResetPosition()
+    {
+        rb.position = startingPosition;
     }
 }
